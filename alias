@@ -134,3 +134,14 @@ revoke-my-ip-all =
   !f() {
     aws revoke-my-ip ${1} all all
   }; f
+
+find-users-without-mfa =
+  !f() {
+    echo "Users withouth MFA enabled:"
+    for i in $(aws iam list-users --query "Users[?PasswordLastUsed].UserName" --output text); do
+      result=$(aws iam list-virtual-mfa-devices --query "length(VirtualMFADevices[?User.UserName=='${i}'])")
+      if [ "${result}" -eq "0" ]; then
+        echo "${i}"
+      fi
+    done
+  }; f

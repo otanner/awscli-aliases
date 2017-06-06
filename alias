@@ -145,3 +145,15 @@ find-users-without-mfa =
       fi
     done
   }; f
+
+generate-sts-token =
+  !f() {
+    user_arn=$(aws whoami | jq -r .Arn)
+    duration=${1:-3600}
+    session_data=$(aws sts get-session-token --duration-seconds $duration)
+    echo "# temporary credentials on user ${user_arn} for $duration seconds (expires on $(echo $session_data | jq -r .Credentials.Expiration))"
+    echo "export AWS_DEFAULT_REGION=$(aws configure get region)"
+    echo "export AWS_ACCESS_KEY_ID=$(echo $session_data | jq -r .Credentials.AccessKeyId)"
+    echo "export AWS_SECRET_ACCESS_KEY=$(echo $session_data | jq -r .Credentials.SecretAccessKey)"
+    echo "export AWS_SESSION_TOKEN=$(echo $session_data | jq -r .Credentials.SessionToken)"
+  }; f

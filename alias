@@ -157,3 +157,12 @@ generate-sts-token =
     echo "export AWS_SECRET_ACCESS_KEY=$(echo $session_data | jq -r .Credentials.SecretAccessKey)"
     echo "export AWS_SESSION_TOKEN=$(echo $session_data | jq -r .Credentials.SessionToken)"
   }; f
+
+find-instances-in-sg =
+  !f() {
+    filter=${2:-Name}
+    for i in $(aws ec2 describe-instances --filters "Name=network-interface.group-id,Values=['${1}']" --query "Reservations[].Instances[].Tags[?Key == '${filter}'].Value[]" --output text)
+    do
+        echo ${i}
+    done
+  }; f

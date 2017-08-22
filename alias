@@ -164,7 +164,7 @@ find-instances-in-sg =
     filter=${2:-Name}
     for i in $(aws ec2 describe-instances --filters "Name=network-interface.group-id,Values=['${1}']" --query "Reservations[].Instances[].Tags[?Key == '${filter}'].Value[]" --output text)
     do
-        echo ${i}
+      echo ${i}
     done
   }; f
 

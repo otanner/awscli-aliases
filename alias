@@ -159,6 +159,48 @@ generate-sts-token =
     echo "export AWS_SECURITY_TOKEN=$(echo $session_data | jq -r .Credentials.SessionToken)"
   }; f
 
+get-cfn-params =
+  !f() {
+    stack_json=$(aws cloudformation describe-stacks --stack-name ${1})
+    echo ${stack_json} | jq -r '.Stacks[0].Parameters[] | .ParameterKey'
+  }; f
+
+set-cfn-params =
+  !f() {
+    stack_name=$1
+    shift
+    stack_params=$(aws get-cfn-params $stack_name)
+
+    declare -a params
+
+    for i in "$@"
+    do
+      key=$(echo ${i%%=*} | cksum | cut -d' ' -f1)  # use cksum as sh array supports only integer indices
+      value=${i##*=}
+
+      params[$key]=$value
+    done
+
+    out_str=""
+
+    for param in $stack_params
+    do
+      param_index=$(echo ${param} | cksum | cut -d' ' -f1)
+
+      out_str="${out_str}ParameterKey=${param},"
+      if [ ${params[$param_index]+_} ]
+      then
+        out_str="${out_str}ParameterValue=\"${params[$param_index]}\""
+      else
+        out_str="${out_str}UsePreviousValue=true"
+      fi
+      out_str="${out_str} "
+    done
+
+    echo $out_str
+
+  }; f
+
 find-instances-in-sg =
   !f() {
     filter=${2:-Name}

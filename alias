@@ -239,3 +239,14 @@ describe-vpc-subnets =
   !f() {
     aws ec2 describe-subnets --filter="Name=vpc-id,Values=${1}" --query "Subnets[].{SubnetId: SubnetId, Name: Tags[?Key=='Name'].Value | [0], CidrBlock: CidrBlock}"
   }; f
+
+list-newest-ecr-images =
+  !f() {
+    repository_name=${1}
+    show_amount=${2:-10}
+    images=$(aws ecr describe-images --repository-name ${repository_name}) || exit $?
+    images_amount=$(echo ${images} | jq -r '.imageDetails | length')
+
+    echo "Found ${images_amount} images."
+    echo ${images} | jq -r '[(.imageDetails | sort_by(-.imagePushedAt)[:'"${show_amount}"'])[] | { imagePushedAt: .imagePushedAt | strftime("%Y-%m-%dT%H:%M:%S"), imageTags }]'
+  }; f

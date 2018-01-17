@@ -234,3 +234,8 @@ delete-old-ecr-images =
 
     aws ecr batch-delete-image --repository-name ${repository_name} --image-ids imageDigest=${image_digests} || exit $?
   }; f
+
+describe-vpc-subnets =
+  !f() {
+    aws ec2 describe-subnets --filter="Name=vpc-id,Values=${1}" --query "Subnets[].{SubnetId: SubnetId, Name: Tags[?Key=='Name'].Value | [0], CidrBlock: CidrBlock}"
+  }; f

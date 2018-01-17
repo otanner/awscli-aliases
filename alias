@@ -247,6 +247,6 @@ list-newest-ecr-images =
     images=$(aws ecr describe-images --repository-name ${repository_name}) || exit $?
     images_amount=$(echo ${images} | jq -r '.imageDetails | length')
 
-    echo "Found ${images_amount} images."
+    (>&2 echo "Found ${images_amount} images. Showing newest ${show_amount}.")
     echo ${images} | jq -r '[(.imageDetails | sort_by(-.imagePushedAt)[:'"${show_amount}"'])[] | { imagePushedAt: .imagePushedAt | strftime("%Y-%m-%dT%H:%M:%S"), imageTags }]'
   }; f

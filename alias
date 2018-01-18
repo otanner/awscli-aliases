@@ -248,5 +248,5 @@ list-newest-ecr-images =
     images_amount=$(echo ${images} | jq -r '.imageDetails | length')
 
     (>&2 echo "Found ${images_amount} images. Showing newest ${show_amount}.")
-    echo ${images} | jq -r '[(.imageDetails | sort_by(-.imagePushedAt)[:'"${show_amount}"'])[] | { imagePushedAt: .imagePushedAt | strftime("%Y-%m-%dT%H:%M:%S"), imageTags }]'
+    echo ${images} | jq -r '[(.imageDetails | sort_by(-.imagePushedAt)[:'"${show_amount}"'])[] | { imagePushedAt: .imagePushedAt | strftime("%Y-%m-%dT%H:%M:%SZ"), imageTags }]'
   }; f

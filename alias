@@ -248,7 +248,7 @@ delete-old-ecr-images =
 
 describe-vpc-subnets =
   !f() {
-    aws ec2 describe-subnets --filter="Name=vpc-id,Values=${1}" --query "Subnets[].{SubnetId: SubnetId, Name: Tags[?Key=='Name'].Value | [0], CidrBlock: CidrBlock}"
+    aws ec2 describe-subnets --filter="Name=vpc-id,Values=${1}" --query "Subnets[].{SubnetId: SubnetId, Name: Tags[?Key=='Name'].Value | [0], CidrBlock: CidrBlock}" | jq -r 'sort_by(.Name)'
   }; f
 
 list-newest-ecr-images =

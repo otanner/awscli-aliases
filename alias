@@ -159,7 +159,12 @@ generate-sts-token =
     echo "export AWS_SECURITY_TOKEN=$(echo $session_data | jq -r .Credentials.SessionToken)"
   }; f
 
-get-cfn-params =
+describe-stack-params =
+  !f() {
+    aws cloudformation describe-stacks --stack-name urapalvelu-stage | jq -r '.Stacks[0].Parameters[] | .ParameterKey + "=" + .ParameterValue' | sort
+  }; f
+
+get-cfn-param-keys =
   !f() {
     stack_json=$(aws cloudformation describe-stacks --stack-name ${1})
     echo ${stack_json} | jq -r '.Stacks[0].Parameters[] | .ParameterKey'
@@ -169,7 +174,7 @@ set-cfn-params =
   !f() {
     stack_name=$1
     shift
-    stack_params=$(aws get-cfn-params $stack_name)
+    stack_params=$(aws get-cfn-param-keys $stack_name)
 
     declare -a params
 
@@ -199,6 +204,12 @@ set-cfn-params =
 
     echo $out_str
 
+  }; f
+
+get-cfn-params =
+  !f() {
+    stack_json=$(aws cloudformation describe-stacks --stack-name ${1})
+    echo ${stack_json} | jq -r '.Stacks[0].Parameters[] | { (.ParameterKey): .ParameterValue }' | jq -sS add
   }; f
 
 find-instances-in-sg =

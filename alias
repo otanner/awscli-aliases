@@ -161,7 +161,7 @@ generate-sts-token =
 
 describe-stack-params =
   !f() {
-    aws cloudformation describe-stacks --stack-name urapalvelu-stage | jq -r '.Stacks[0].Parameters[] | .ParameterKey + "=" + .ParameterValue' | sort
+    aws cloudformation describe-stacks --stack-name ${1} | jq -r '.Stacks[0].Parameters[] | .ParameterKey + "=" + .ParameterValue' | sort
   }; f
 
 get-cfn-param-keys =

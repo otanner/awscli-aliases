@@ -279,3 +279,8 @@ find-untagged-stacks =
     # use tag key as a parameter
     aws cloudformation describe-stacks | jq -r '.Stacks[] | del(select(.Tags[].Key == "'$1'")) | select(.StackName != null) | .StackName'
   }; f
+
+find-instance-by-public-ip =
+  !f() {
+    aws ec2 describe-instances --filters "Name=ip-address,Values=$1" | jq -r '.Reservations[].Instances[].Tags[] | select(.Key == "Name").Value'
+  }; f

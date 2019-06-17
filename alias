@@ -284,3 +284,8 @@ find-instance-by-public-ip =
   !f() {
     aws ec2 describe-instances --filters "Name=ip-address,Values=$1" | jq -r '.Reservations[].Instances[].Tags[] | select(.Key == "Name").Value'
   }; f
+
+find-nat-gateway-by-public-ip =
+  !f() {
+    aws ec2 describe-nat-gateways | jq -r '.NatGateways[] | select(.NatGatewayAddresses[].PublicIp == "'$1'") | .Tags[] | select(.Key == "Name").Value'
+  }; f
